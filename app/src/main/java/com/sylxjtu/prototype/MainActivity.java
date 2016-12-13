@@ -8,6 +8,7 @@ import android.graphics.Typeface;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -31,7 +32,7 @@ public class MainActivity extends AppCompatActivity {
     TextView weatherText;
     TextView celsiusSymbol;
     ListView forecastList;
-    ArrayList<String> forecastItems = new ArrayList<String>();
+    ArrayList<String> forecastItems = new ArrayList<>();
     ArrayAdapter<String> adapter;
 
     @Override
@@ -52,14 +53,14 @@ public class MainActivity extends AppCompatActivity {
         celsiusSymbol.setTypeface(typeface);
         celsiusSymbol.setText(R.string.wi_celsius);
 
-        adapter=new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, forecastItems);
+        adapter=new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, forecastItems);
         forecastList.setAdapter(adapter);
 
         getLocation();
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, @NonNull String permissions[], @NonNull int[] grantResults) {
         if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
             getLocation();
         } else {
@@ -154,21 +155,28 @@ public class MainActivity extends AppCompatActivity {
         new JsonApiTask(url, this, 2000) {
             @Override
             void onSuccess(JSONObject obj, Context context) throws JSONException {
+                adapter.clear();
                 JSONArray weatherDatas = obj.getJSONArray("forecasts").getJSONObject(0).getJSONArray("casts");
                 for(int i = 0; i < weatherDatas.length(); i++) {
                     JSONObject weatherData = weatherDatas.getJSONObject(i);
-                    adapter.add(String.format(Locale.CHINA, "%s\n%s %s", weatherData.getString("date"), weatherData.getString("dayweather"), weatherData.getString("daytemp")));
+                    String t = "";
+                    t += weatherData.getString("date") + "\n";
+                    if(!weatherData.getString("dayweather").equals("[]"))
+                        t += String.format(Locale.CHINA, "白天     %s     %s℃\n", weatherData.getString("dayweather"), weatherData.getString("daytemp"));
+                    if(!weatherData.getString("nightweather").equals("[]"))
+                        t += String.format(Locale.CHINA, "晚上     %s     %s℃", weatherData.getString("nightweather"), weatherData.getString("nighttemp"));
+                    adapter.add(t);
                 }
             }
 
             @Override
             void onPending() {
-                temperature.setText("获取中");
+                adapter.clear();
             }
 
             @Override
             void onError() {
-                temperature.setText("获取失败");
+                adapter.add("获取失败");
             }
         }.execute();
     }
