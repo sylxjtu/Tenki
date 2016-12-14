@@ -72,14 +72,14 @@ public class MainActivity extends AppCompatActivity {
         String url = String.format(Locale.CHINA,
                 " http://restapi.amap.com/v3/assistant/coordinate/convert?key=%s&locations=%.6f,%.6f&coordsys=gps",
                 getString(R.string.api_key), lon, lat);
-        new JsonApiTask(url, this, 2000) {
+        new JsonApiTask(url, this) {
             @Override
             void onSuccess(JSONObject obj, Context context) throws JSONException {
                 String locations = obj.getString("locations");
                 String url = String.format(Locale.CHINA,
                         "http://restapi.amap.com/v3/geocode/regeo?key=%s&location=%s",
                         getString(R.string.api_key) ,locations);
-                new JsonApiTask(url, context, 2000) {
+                new JsonApiTask(url, context) {
                     @Override
                     void onSuccess(JSONObject obj, Context context) throws JSONException {
                         String address = obj.getJSONObject("regeocode").getString("formatted_address");
@@ -118,7 +118,7 @@ public class MainActivity extends AppCompatActivity {
         String url = String.format(Locale.CHINA,
                 "http://restapi.amap.com/v3/weather/weatherInfo?key=%s&city=%s",
                 getString(R.string.api_key) ,adcode);
-        new JsonApiTask(url, this, 2000) {
+        new JsonApiTask(url, this) {
             @Override
             void onSuccess(JSONObject obj, Context context) throws JSONException {
                 JSONObject weatherData = obj.getJSONArray("lives").getJSONObject(0);
@@ -152,7 +152,7 @@ public class MainActivity extends AppCompatActivity {
         String url = String.format(Locale.CHINA,
                 "http://restapi.amap.com/v3/weather/weatherInfo?key=%s&city=%s&extensions=all",
                 getString(R.string.api_key) ,adcode);
-        new JsonApiTask(url, this, 2000) {
+        new JsonApiTask(url, this) {
             @Override
             void onSuccess(JSONObject obj, Context context) throws JSONException {
                 adapter.clear();

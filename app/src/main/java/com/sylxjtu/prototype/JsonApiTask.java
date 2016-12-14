@@ -8,32 +8,38 @@ import android.os.AsyncTask;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-/**
- * Created by sylxjtu on 2016/12/11.
- */
-
-public abstract class JsonApiTask {
+abstract class JsonApiTask {
     private String url;
     private Context context;
-    private int bufferSize;
+    private int bufferSize = 2048;
     private int readTimeout = 10000;
     private int connectTimeout = 15000;
 
-    JsonApiTask(String url, Context context, int bufferSize) {
+    JsonApiTask(String url, Context context) {
         this.url = url;
         this.context = context;
-        this.bufferSize = bufferSize;
+    }
+
+    private static String readStream(InputStream is, int bufferSize) throws IOException {
+        Reader reader = new InputStreamReader(is);
+        char[] buffer = new char[bufferSize];
+        String res = "";
+        while(reader.read(buffer) == bufferSize) {
+            res += new String(buffer);
+        }
+        return res + new String(buffer);
     }
 
     void setReadTimeout(int readTimeout) {
         this.readTimeout = readTimeout;
     }
-
 
     void setConnectTimeout(int connectTimeout) {
         this.connectTimeout = connectTimeout;
@@ -56,10 +62,7 @@ public abstract class JsonApiTask {
                         conn.setDoInput(true);
                         conn.connect();
 
-                        Reader reader = new InputStreamReader(conn.getInputStream());
-                        char[] buffer = new char[bufferSize];
-                        reader.read(buffer);
-                        return new String(buffer);
+                        return readStream(conn.getInputStream(), bufferSize);
                     } catch (Exception e) {
                         return null;
                     }
