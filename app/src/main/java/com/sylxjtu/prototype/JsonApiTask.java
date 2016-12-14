@@ -45,6 +45,10 @@ abstract class JsonApiTask {
         this.connectTimeout = connectTimeout;
     }
 
+    void setBufferSize(int bufferSize) {
+        this.bufferSize = bufferSize;
+    }
+
     void execute() {
         ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
