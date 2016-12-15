@@ -15,6 +15,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import org.json.JSONArray;
@@ -32,6 +33,7 @@ public class MainActivity extends AppCompatActivity {
     TextView weatherText;
     TextView celsiusSymbol;
     ListView forecastList;
+    ProgressBar progressBar;
     ArrayList<String> forecastItems = new ArrayList<>();
     ArrayAdapter<String> adapter;
 
@@ -46,10 +48,11 @@ public class MainActivity extends AppCompatActivity {
         weatherText = (TextView) findViewById(R.id.weatherText);
         celsiusSymbol = (TextView) findViewById(R.id.celsiusSymbol);
         forecastList = (ListView) findViewById(R.id.forecastList);
+        progressBar = (ProgressBar) findViewById(R.id.progressBar);
 
         Typeface typeface = Typeface.createFromAsset(getAssets(), "fonts/weathericons-regular-webfont.ttf");
         weatherIcon.setTypeface(typeface);
-        weatherIcon.setText(R.string.wi_alien);
+        weatherIcon.setText(R.string.wi_na);
         celsiusSymbol.setTypeface(typeface);
         celsiusSymbol.setText(R.string.wi_celsius);
 
@@ -64,8 +67,15 @@ public class MainActivity extends AppCompatActivity {
         if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
             getLocation();
         } else {
-            finish();
+            proto.setText("定位失败");
+            progressBar.setIndeterminate(false);
         }
+    }
+
+    private void error(String info) {
+        proto.setText(info);
+        weatherIcon.setText(R.string.wi_na);
+        progressBar.setIndeterminate(false);
     }
 
     void getCity(double lat, double lon) {
@@ -82,11 +92,12 @@ public class MainActivity extends AppCompatActivity {
                 new JsonApiTask(url, context) {
                     @Override
                     void onSuccess(JSONObject obj, Context context) throws JSONException {
-                        String address = obj.getJSONObject("regeocode").getString("formatted_address");
-                        String adcode = obj.getJSONObject("regeocode").getJSONObject("addressComponent").getString("adcode");
-                        proto.setText(address);
+                        JSONObject res = obj.getJSONObject("regeocode").getJSONObject("addressComponent");
+                        String adcode = res.getString("adcode");
+                        proto.setText(res.getString("province") + res.getString("city") + res.getString("district"));
                         getWeather(adcode);
                         getForecast(adcode);
+                        progressBar.setIndeterminate(false);
                     }
 
                     @Override
@@ -96,7 +107,7 @@ public class MainActivity extends AppCompatActivity {
 
                     @Override
                     void onError() {
-                        proto.setText("网络错误");
+                        error("网络错误");
                     }
                 }.execute();
             }
@@ -108,7 +119,7 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             void onError() {
-                proto.setText("网络错误");
+                error("网络错误");
             }
         }.execute();
 
@@ -143,7 +154,7 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             void onError() {
-                temperature.setText("获取失败");
+                error("网络错误");
             }
         }.execute();
     }
@@ -176,12 +187,14 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             void onError() {
-                adapter.add("获取失败");
+                error("网络错误");
             }
         }.execute();
     }
 
     void getLocation() {
+        adapter.clear();
+        progressBar.setIndeterminate(true);
         LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         LocationListener locationListener = new LocationListener() {
             @Override
