@@ -80,14 +80,14 @@ public class MainActivity extends AppCompatActivity {
 
     void getCity(double lat, double lon) {
         String url = String.format(Locale.CHINA,
-                " http://restapi.amap.com/v3/assistant/coordinate/convert?key=%s&locations=%.6f,%.6f&coordsys=gps",
+                getString(R.string.convert_coord_url),
                 getString(R.string.api_key), lon, lat);
         new JsonApiTask(url, this) {
             @Override
             void onSuccess(JSONObject obj, Context context) throws JSONException {
                 String locations = obj.getString("locations");
                 String url = String.format(Locale.CHINA,
-                        "http://restapi.amap.com/v3/geocode/regeo?key=%s&location=%s",
+                        getString(R.string.regeo_url),
                         getString(R.string.api_key) ,locations);
                 new JsonApiTask(url, context) {
                     @Override
@@ -102,12 +102,12 @@ public class MainActivity extends AppCompatActivity {
 
                     @Override
                     void onPending() {
-                        proto.setText("正在获取城市信息");
+                        proto.setText(R.string.getting_city_info);
                     }
 
                     @Override
                     void onError() {
-                        error("网络错误");
+                        error(getString(R.string.network_error));
                     }
                 }.execute();
             }
@@ -119,7 +119,7 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             void onError() {
-                error("网络错误");
+                error(getString(R.string.network_error));
             }
         }.execute();
 
@@ -127,7 +127,7 @@ public class MainActivity extends AppCompatActivity {
 
     void getWeather(String adcode){
         String url = String.format(Locale.CHINA,
-                "http://restapi.amap.com/v3/weather/weatherInfo?key=%s&city=%s",
+                getString(R.string.weather_url),
                 getString(R.string.api_key) ,adcode);
         new JsonApiTask(url, this) {
             @Override
@@ -149,19 +149,19 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             void onPending() {
-                temperature.setText("获取中");
+                temperature.setText(R.string.getting);
             }
 
             @Override
             void onError() {
-                error("网络错误");
+                error(getString(R.string.network_error));
             }
         }.execute();
     }
 
     void getForecast(String adcode){
         String url = String.format(Locale.CHINA,
-                "http://restapi.amap.com/v3/weather/weatherInfo?key=%s&city=%s&extensions=all",
+                getString(R.string.forecast_url),
                 getString(R.string.api_key) ,adcode);
         new JsonApiTask(url, this) {
             @Override

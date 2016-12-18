@@ -1,4 +1,10 @@
 <resources>
     <string name="app_name">Tenki</string>
-    <string name="api_key">your_api_key_here</string>
+    <string name="forecast_url" formatted="false"><![CDATA[http://restapi.amap.com/v3/weather/weatherInfo?key=%s&city=%s&extensions=all]]></string>
+    <string name="weather_url" formatted="false"><![CDATA[http://restapi.amap.com/v3/weather/weatherInfo?key=%s&city=%s]]></string>
+    <string name="convert_coord_url" formatted="false"><![CDATA[http://restapi.amap.com/v3/assistant/coordinate/convert?key=%s&locations=%.6f,%.6f&coordsys=gps]]></string>
+    <string name="regeo_url" formatted="false"><![CDATA[http://restapi.amap.com/v3/geocode/regeo?key=%s&location=%s]]></string>
+    <string name="getting_city_info">正在获取城市信息</string>
+    <string name="network_error">网络错误</string>
+    <string name="getting">获取中</string>
 </resources>
